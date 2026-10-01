@@ -70,7 +70,8 @@ func keyschedule(key []byte) []uint32 {
 		roundkeys = append(roundkeys, a)
 
 		a, b, c, d = round(a, b, c, d, uint32(i))
-		a, f, g, h = round(a, e, f, g, h)
+		e, f, g, h = round(a, e, f, g, h)
+		a = e
 	}
 
 	return roundkeys
