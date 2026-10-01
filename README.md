@@ -6,11 +6,13 @@ ContainedReality's Data Protection Algorithm.
 
 It's an ARX-based algorithm that uses 256 bit keys, has a block consisting of four 32 bit words. 56 rounds.
 
+This is my first cipher that I've designed and released, so expect many changes that may completely change the specification.
+
 ## Notes
 
 ### Design
 
-CRDPA is based off of SPECK.
+CRDPA is based off of/inspired by SPECK.
 
 ### Security
 
