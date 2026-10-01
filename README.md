@@ -20,4 +20,4 @@ Don't use it. CRDPA Hasn't seen formal cryptanalysis, if it does I'll add it her
 
 Only use it if you really know what you're doing and accept the risks of using a cipher that hasn't been analyzed or audited.
 
-CRDPA was mostly designed as a learning exercise for ARX ciphers, and trying to make a reasonably secure cipher. So If it turns out I made an actually secure encryption algorithm, then I'm happy, that's the goal, but it just isn't a risk someone should take. It could have some wicked vulnerabilities that I don't see.
+CRDPA was mostly designed as a learning exercise for ARX ciphers, and trying to make a reasonably secure *toy* cipher. So If it turns out I made an actually secure encryption algorithm, then I'm happy, that's the goal, but it just isn't a risk someone should take. It could have some wicked vulnerabilities that I don't see.
