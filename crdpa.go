@@ -76,6 +76,10 @@ func keyschedule(key []byte) []uint32 {
 	return roundkeys
 }
 
+func (crdpa CRDPA) BlockSize() int {
+	return 16
+}
+
 func (crdpa *CRDPA) Encrypt(dst, src []byte) {
 	a := binary.LittleEndian.Uint32(src[0:4])
 	b := binary.LittleEndian.Uint32(src[4:8])
