@@ -14,7 +14,7 @@ type CRDPA struct {
 	roundkeys []uint32
 }
 
-func round(a uint32, b uint32, c uint32, d uint32, k uint32) (uint32, uint32, uint32, uint32) {
+func round(a uint32, b uint32, c uint32, d uint32, k uint32, k1 uint32) (uint32, uint32, uint32, uint32) {
 	a = bits.RotateLeft32(a, -8)
 	a ^= k
 	a += b
@@ -29,13 +29,13 @@ func round(a uint32, b uint32, c uint32, d uint32, k uint32) (uint32, uint32, ui
 
 	d = bits.RotateLeft32(d, 7)
 	d ^= c
-	d += b
+	d += k1
 
 	return a, b, c, d
 }
 
-func invround(a uint32, b uint32, c uint32, d uint32, k uint32) (uint32, uint32, uint32, uint32) {
-	d -= b
+func invround(a uint32, b uint32, c uint32, d uint32, k uint32, k1 uint32) (uint32, uint32, uint32, uint32) {
+	d -= k1
 	d ^= c
 	d = bits.RotateLeft32(d, -7)
 
@@ -69,9 +69,10 @@ func keyschedule(key []byte) []uint32 {
 	for i := range ROUNDS {
 		roundkeys = append(roundkeys, a)
 
-		a, b, c, d = round(a, b, c, d, uint32(i))
-		e, f, g, h = round(a, e, f, g, h)
-		a = e
+		a, b, c, d = round(a, b, c, d, uint32(i), h)
+		e, f, g, h = round(e, f, g, h, uint32(i), d)
+
+		roundkeys = append(roundkeys, e)
 	}
 
 	return roundkeys
@@ -88,7 +89,7 @@ func (crdpa *CRDPA) Encrypt(dst, src []byte) {
 	d := binary.LittleEndian.Uint32(src[12:16])
 
 	for i := range ROUNDS {
-		a, b, c, d = round(a, b, c, d, crdpa.roundkeys[i])
+		a, b, c, d = round(a, b, c, d, crdpa.roundkeys[i], crdpa.roundkeys[i+1])
 	}
 
 	binary.LittleEndian.PutUint32(dst[0:4], a)
@@ -104,7 +105,7 @@ func (crdpa *CRDPA) Decrypt(dst, src []byte) {
 	d := binary.LittleEndian.Uint32(src[12:16])
 
 	for i := ROUNDS - 1; i >= 0; i-- {
-		a, b, c, d = invround(a, b, c, d, crdpa.roundkeys[i])
+		a, b, c, d = invround(a, b, c, d, crdpa.roundkeys[i], crdpa.roundkeys[i+1])
 	}
 
 	binary.LittleEndian.PutUint32(dst[0:4], a)
