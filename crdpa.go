@@ -21,37 +21,38 @@ func round(a uint32, b uint32, c uint32, d uint32, k uint32, k1 uint32) (uint32,
 
 	b = bits.RotateLeft32(b, 3)
 	b ^= a
-	b += c
 
 	c = bits.RotateLeft32(c, -13)
-	c ^= b
+	c ^= k1
 	c += d
 
 	d = bits.RotateLeft32(d, 7)
 	d ^= c
-	d += k1
 
-	return a, b, c, d
+	return b, c, d, a
 }
 
 func invround(a uint32, b uint32, c uint32, d uint32, k uint32, k1 uint32) (uint32, uint32, uint32, uint32) {
-	d -= k1
-	d ^= c
-	d = bits.RotateLeft32(d, -7)
+	B := a
+	C := b
+	D := c
+	A := d
 
-	c -= d
-	c ^= b
-	c = bits.RotateLeft32(c, 13)
+	D ^= C
+	D = bits.RotateLeft32(D, -7)
 
-	b -= c
-	b ^= a
-	b = bits.RotateLeft32(b, -3)
+	C -= D
+	C ^= k1
+	C = bits.RotateLeft32(C, 13)
 
-	a -= b
-	a ^= k
-	a = bits.RotateLeft32(a, 8)
+	B ^= A
+	B = bits.RotateLeft32(B, -3)
 
-	return a, b, c, d
+	A -= B
+	A ^= k
+	A = bits.RotateLeft32(A, 8)
+
+	return A, B, C, D
 }
 
 func keyschedule(key []byte) []uint32 {
@@ -66,13 +67,13 @@ func keyschedule(key []byte) []uint32 {
 	g := binary.LittleEndian.Uint32(key[24:28])
 	h := binary.LittleEndian.Uint32(key[28:32])
 
-	for i := range ROUNDS {
+	for i := 0; i < ROUNDS*2; i++ {
 		roundkeys = append(roundkeys, a)
 
-		a, b, c, d = round(a, b, c, d, uint32(i), h)
-		e, f, g, h = round(e, f, g, h, uint32(i), d)
+		a, b, c, d = round(a, b, c, d, uint32(i)^h, h)
+		e, f, g, h = round(e, f, g, h, uint32(i)^d, d)
 
-		roundkeys = append(roundkeys, e)
+		a, e = e, a
 	}
 
 	return roundkeys
@@ -89,7 +90,7 @@ func (crdpa *CRDPA) Encrypt(dst, src []byte) {
 	d := binary.LittleEndian.Uint32(src[12:16])
 
 	for i := range ROUNDS {
-		a, b, c, d = round(a, b, c, d, crdpa.roundkeys[i], crdpa.roundkeys[i+1])
+		a, b, c, d = round(a, b, c, d, crdpa.roundkeys[2*i], crdpa.roundkeys[2*i+1])
 	}
 
 	binary.LittleEndian.PutUint32(dst[0:4], a)
@@ -105,7 +106,7 @@ func (crdpa *CRDPA) Decrypt(dst, src []byte) {
 	d := binary.LittleEndian.Uint32(src[12:16])
 
 	for i := ROUNDS - 1; i >= 0; i-- {
-		a, b, c, d = invround(a, b, c, d, crdpa.roundkeys[i], crdpa.roundkeys[i+1])
+		a, b, c, d = invround(a, b, c, d, crdpa.roundkeys[2*i], crdpa.roundkeys[2*i+1])
 	}
 
 	binary.LittleEndian.PutUint32(dst[0:4], a)
