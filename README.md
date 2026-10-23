@@ -14,11 +14,11 @@ This is my first cipher that I've designed and released, so expect many changes 
 
 ### Design
 
-CRDPA is based off inspired by SPECK.
+CRDPA is based off/inspired by SPECK.
 
 ### Security
 
-Don't use it. CRDPA Hasn't seen formal cryptanalysis, if it does I'll add it here. Otherwise I think it's secure, but I could totally be wrong, and it's not worth the risk when other formally reviewed and battletested ciphers exist. [Use AES instead](https://pkg.go.dev/crypto/aes@latest).
+Don't use it. CRDPA Hasn't seen formal cryptanalysis, if it does I'll add it here. Otherwise I *think* it's "secure", but I could totally be wrong, and I probably am. It's not worth the risk when other formally reviewed and battletested ciphers exist. [Use AES instead](https://pkg.go.dev/crypto/aes@latest).
 
 Only use it if you really know what you're doing and accept the risks of using a cipher that hasn't been analyzed or audited.
 
